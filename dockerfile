@@ -29,7 +29,9 @@ RUN apt-get update && apt-get install -y \
         xsl \
         zip \
     && pecl install apcu \
+    && pecl install xdebug \
     && docker-php-ext-enable apcu \
+    && docker-php-ext-enable xdebug \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L https://github.com/glpi-project/glpi/releases/download/11.0.6/glpi-11.0.6.tgz \
@@ -67,6 +69,11 @@ RUN chown -R www-data:www-data /var/www/html \
 
 WORKDIR /var/www/html
 
+COPY glpi_config/ /usr/local/share/glpi-config/
+COPY docker-entrypoint-glpi.sh /usr/local/bin/docker-entrypoint-glpi.sh
+COPY xdebug.ini /usr/local/etc/php/conf.d/99-xdebug.ini
 
-COPY glpi_config/config_db.php /var/www/html/config/config_db.php
+RUN chmod +x /usr/local/bin/docker-entrypoint-glpi.sh
 
+ENTRYPOINT ["docker-entrypoint-glpi.sh"]
+CMD ["apache2-foreground"]
