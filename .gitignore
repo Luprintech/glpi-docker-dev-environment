@@ -1,0 +1,46 @@
+# Archivos y carpetas a ignorar para un proyecto de contenedor GLPI en GitHub
+
+# Archivos de entorno y configuración local
+.env
+*.env
+
+# Archivos de bases de datos temporales o de desarrollo
+*.sqlite3
+*.db
+*.sql~
+
+# Archivos de logs
+*.log
+logs/
+
+# Archivos de sistema y temporales
+*.tmp
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Archivos de usuario de VSCode
+.vscode/
+
+# Archivos de Docker
+**/data/
+**/volumes/
+
+# Archivos de salida o backup
+*.tar
+*.tar.gz
+*.zip
+*.gz
+*.7z
+
+# Archivos de Word y PDF generados
+*.docx
+*.pdf
+
+# Otros
+node_modules/
+__pycache__/
+
+# Ignorar archivos de configuración sensibles
+config_db.php

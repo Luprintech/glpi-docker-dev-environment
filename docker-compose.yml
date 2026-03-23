@@ -1,0 +1,66 @@
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - backend
+
+  glpi:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: glpi
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    ports:
+      - "127.0.0.1:8085:80"
+      - "127.0.0.1:9003:9003"
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - glpi_files:/var/www/html/files
+      - glpi_config:/var/www/html/config
+      - glpi_marketplace:/var/www/html/marketplace
+      - ./.vscode:/var/www/html/.vscode
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2
+    container_name: phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
+    ports:
+      - "127.0.0.1:8086:80"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+
+volumes:
+  db_data:
+  glpi_files:
+  glpi_config:
+  glpi_marketplace:

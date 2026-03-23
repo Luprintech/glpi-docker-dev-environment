@@ -1,0 +1,25 @@
+{
+  "name": "GLPI Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "glpi",
+  "workspaceFolder": "/var/www/html",
+  "remoteUser": "root",
+  "forwardPorts": [
+    8085,
+    8086,
+    9003
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "xdebug.php-debug",
+        "ms-azuretools.vscode-docker",
+        "bmewburn.vscode-intelephense-client"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php"
+      }
+    }
+  },
+  "shutdownAction": "none"
+}
