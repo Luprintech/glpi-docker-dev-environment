@@ -65,6 +65,8 @@ Primera puesta en marcha o reconstruccion completa del entorno:
 docker compose up -d --build
 ```
 
+En el primer arranque, MariaDB puede tardar varios minutos en quedar lista mientras crea la base e importa `initdb/datos-iniciales.sql`. Durante ese tiempo es normal que `glpi` y `phpmyadmin` esperen a la base de datos.
+
 Arranque normal manteniendo los datos ya existentes:
 
 ```bash
@@ -93,6 +95,8 @@ La base de datos inicial se carga automaticamente desde:
 * `initdb/datos-iniciales.sql`
 
 Esto ocurre solo cuando el volumen `db_data` esta vacio. Si la base ya existe, MariaDB no vuelve a ejecutar los scripts de inicializacion.
+
+En equipos con disco lento o Docker Desktop recien arrancado, esta importacion puede tardar bastante mas de un minuto. El `healthcheck` de MariaDB esta ajustado para dar margen suficiente antes de marcar el servicio como no saludable.
 
 ## Persistencia
 
