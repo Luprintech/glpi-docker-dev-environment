@@ -20,8 +20,11 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Archivos de usuario de VSCode
-.vscode/
+# VS Code - solo ignorar configuración local del usuario, no la del proyecto
+.vscode/settings.json
+.vscode/extensions.json
+.vscode/*.code-workspace
+# launch.json y tasks.json SÍ pertenecen al proyecto (configuración de debug)
 
 # Archivos de Docker
 **/data/

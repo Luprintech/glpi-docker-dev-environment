@@ -1,0 +1,43 @@
+# ============================================================
+# .dockerignore - GLPI 11.0.6
+# ============================================================
+# Excluye del contexto de build de Docker archivos que no
+# son necesarios en la imagen, reduciendo tamaño y tiempo
+# de build y evitando incluir datos sensibles o innecesarios.
+# ============================================================
+
+# Control de versiones
+.git
+.gitignore
+
+# Documentación (no necesaria en la imagen)
+README.md
+*.md
+
+# Configuración del IDE y editor
+.vscode
+.devcontainer
+
+# Variables de entorno (NUNCA incluir en la imagen)
+.env
+.env.*
+!.env.example
+
+# Dumps SQL de inicialización (se montan como volumen, no se copian en imagen)
+initdb/
+desplegables/
+
+# Archivos temporales y del sistema
+*.tmp
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Archivos comprimidos
+*.tar
+*.tar.gz
+*.zip
+*.gz
+*.7z

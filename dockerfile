@@ -1,5 +1,14 @@
 FROM php:8.3-apache
 
+# Metadatos de la imagen
+LABEL maintainer="Ayuntamiento - Área de Sistemas y Comunicaciones"
+LABEL description="Entorno de desarrollo GLPI 11.0.6 con MariaDB, PhpMyAdmin y Xdebug"
+LABEL version="11.0.6"
+LABEL org.opencontainers.image.title="GLPI Dev 11.0.6"
+LABEL org.opencontainers.image.description="GLPI 11.0.6 - Sistema de gestión de activos y helpdesk"
+LABEL org.opencontainers.image.version="11.0.6"
+LABEL org.opencontainers.image.base.name="php:8.3-apache"
+
 RUN apt-get update && apt-get install -y \
     curl \
     libcurl4-openssl-dev \

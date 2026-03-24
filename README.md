@@ -14,6 +14,37 @@ Incluye:
 * Carga automatica de datos iniciales
 * Debug PHP con Xdebug
 
+## Tabla de contenidos
+
+- [Aviso de Seguridad](#️-aviso-de-seguridad)
+- [Servicios](#servicios)
+- [Requisitos](#requisitos)
+- [Uso rapido](#uso-rapido)
+- [Como funciona](#como-funciona)
+- [Persistencia](#persistencia)
+- [Acceso a GLPI](#acceso-a-glpi)
+- [Acceso a PhpMyAdmin](#acceso-a-phpmyadmin)
+- [Que hacer si aparece el instalador](#que-hacer-si-aparece-el-instalador)
+- [DevContainer](#devcontainer)
+- [Xdebug y Depuración con VS Code](#-xdebug-y-depuración-con-vs-code)
+- [Archivos de configuración sensibles](#-archivos-de-configuración-sensibles)
+- [Datos incluidos en la base](#datos-incluidos-en-la-base)
+- [Estructura relevante del proyecto](#estructura-relevante-del-proyecto)
+
+---
+
+## ⚠️ Aviso de Seguridad
+
+> **ANTES DE USAR EN PRODUCCIÓN O COMPARTIR CON COMPAÑEROS:**
+>
+> 1. **Cambia TODAS las contraseñas** del archivo `.env` por contraseñas complejas (mínimo 20 caracteres con mayúsculas, minúsculas, números y símbolos).
+> 2. **Cambia la contraseña del administrador GLPI** (`glpi` / `glpi`) en el primer acceso: *Configuración → Usuarios → glpi → Contraseña*.
+> 3. **Actualiza `glpi_config/config_db.php`** con la nueva contraseña de `MARIADB_PASSWORD`.
+> 4. **Deshabilita Xdebug** en producción (ver sección [Xdebug](#-xdebug-y-depuración-con-vs-code)).
+> 5. **Haz un backup seguro** del archivo `glpi_config/glpicrypt.key`. Si se pierde, los datos encriptados en la BD quedarán ilegibles.
+
+---
+
 ## Servicios
 
 * GLPI: `http://127.0.0.1:8085`
@@ -118,17 +149,72 @@ El proyecto incluye configuracion para abrirlo directamente desde VS Code:
 
 El contenedor de desarrollo utiliza el servicio `glpi` definido en `docker-compose.yml`.
 
-## Debug con Xdebug
+---
 
-Xdebug esta instalado y configurado en el contenedor PHP.
+## 🐛 Xdebug y Depuración con VS Code
 
-Configuracion relevante:
+### Configuración incluida
 
-* Puerto: `9003`
-* `xdebug.mode=debug,develop`
-* Inicio automatico de sesion de debug en cada peticion
+El entorno incluye Xdebug 3.x preconfigurado para depuración remota con VS Code:
 
-En VS Code basta con tener la extension `xdebug.php-debug` y escuchar en el puerto `9003`.
+| Archivo | Propósito |
+|---------|-----------|
+| `xdebug.ini` | Perfil **desarrollo** — Xdebug activo con modo debug |
+| `xdebug.prod.ini` | Perfil **producción** — Xdebug desactivado (`mode=off`) |
+| `.vscode/launch.json` | Configuración de debug para VS Code |
+| `.devcontainer/devcontainer.json` | Extensiones VS Code instaladas automáticamente |
+
+### Cómo usar el debugger
+
+1. Abre la carpeta del proyecto en VS Code
+2. Cuando VS Code ofrezca "Reopen in Container", acepta (o usa `Ctrl+Shift+P` → *Dev Containers: Reopen in Container*)
+3. Ve a **Run & Debug** (`Ctrl+Shift+D`)
+4. Selecciona **"Escuchar Xdebug"** y pulsa **F5**
+5. Pon breakpoints en el código PHP haciendo clic en el margen izquierdo
+6. Recarga la página en el navegador — la ejecución se detendrá en el breakpoint
+
+### ⚠️ Por qué deshabilitar Xdebug en producción
+
+Xdebug **nunca debe estar activo en producción** por tres razones críticas:
+
+1. **Rendimiento**: Introduce un overhead constante que puede ralentizar PHP entre un 100% y un 300%, afectando a todos los usuarios del sistema.
+2. **Seguridad**: Expone stack traces completos con información interna del servidor (rutas, variables, datos sensibles) en los mensajes de error.
+3. **Superficie de ataque**: El puerto 9003 queda abierto. Cualquier cliente en la red puede conectarse al debugger y controlar la ejecución del servidor de forma remota.
+
+### Cómo deshabilitarlo para producción
+
+**Opción A — Sustituir el ini (recomendado):**
+En el `dockerfile`, cambiar la línea:
+```dockerfile
+COPY xdebug.ini /usr/local/etc/php/conf.d/99-xdebug.ini
+```
+por:
+```dockerfile
+COPY xdebug.prod.ini /usr/local/etc/php/conf.d/99-xdebug.ini
+```
+Y reconstruir la imagen: `docker compose build --no-cache glpi`
+
+**Opción B — Variable de entorno en docker-compose.yml:**
+Añadir al servicio `glpi`:
+```yaml
+environment:
+  XDEBUG_MODE: "off"
+```
+
+---
+
+## 🔐 Archivos de configuración sensibles
+
+| Archivo | En Git | Descripción |
+|---------|--------|-------------|
+| `.env` | ❌ No | Contraseñas del entorno. **Nunca subir a Git.** |
+| `.env.example` | ✅ Sí | Plantilla pública sin contraseñas reales |
+| `glpi_config/config_db.php` | ❌ No | Credenciales de BD para GLPI |
+| `glpi_config/glpicrypt.key` | ❌ No | Clave de encriptación. **Hacer backup.** |
+
+> **glpicrypt.key**: Esta clave encripta datos sensibles en la base de datos (contraseñas de cuentas externas, tokens API, etc.). Si se pierde o se regenera con datos existentes, esos datos quedarán ilegibles permanentemente. Guarda una copia en un lugar seguro.
+
+---
 
 ## Datos incluidos en la base
 
@@ -148,3 +234,6 @@ El seed actual contiene, entre otros elementos:
 * `initdb/datos-iniciales.sql`: base de datos inicial reproducible
 * `glpi_config/`: configuracion persistente inicial de GLPI
 * `.devcontainer/devcontainer.json`: soporte para VS Code DevContainer
+* `xdebug.ini`: configuracion de Xdebug para desarrollo
+* `xdebug.prod.ini`: configuracion de Xdebug para produccion (desactivado)
+* `.env.example`: plantilla de variables de entorno

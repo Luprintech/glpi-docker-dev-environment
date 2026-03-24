@@ -3,7 +3,7 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "glpi",
   "workspaceFolder": "/var/www/html",
-  "remoteUser": "root",
+  "remoteUser": "www-data",
   "forwardPorts": [
     8085,
     8086,
